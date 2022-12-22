@@ -62,7 +62,7 @@ th, td {
 }
 
 .add {
-  width: 200px
+  width: 190px
 }
 
 .cancel {
@@ -94,10 +94,10 @@ th, td {
 }
 
 .add-user-form {
-  width: 400px;
   margin: auto;
   border: 1px solid #282c34;
   padding: 0 20px;
+  background: #fff;
 }
 
 .add-user-form input {
@@ -113,4 +113,24 @@ th, td {
 
 .add-user-form div.buttons {
   flex-direction: row;
+  justify-content: space-evenly;
+}
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.modal {
+  position: fixed;
+  top: 30vh;
+  left: 25%;
+  width: 50%;
+  z-index: 100;
+  overflow: hidden;
 }

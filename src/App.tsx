@@ -11,6 +11,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isNewUser, setIsNewUser] = useState(false);
+  const [isRemoved, setIsRemoved] = useState(false);
   const [formIsVisible, setFormIsVisible] = useState(false);
 
   const fetchUsersHandler = async () => {
@@ -41,11 +42,15 @@ function App() {
 
   useEffect(() => {
     fetchUsersHandler();
-  }, [isNewUser]);
+  }, [isNewUser, isRemoved]);
 
   const confirmHandler = (isSubmitted: boolean) => {
     setIsNewUser(isSubmitted);
-  }
+  };
+
+  const deleteHandler = (isDeleted: boolean) => {
+    setIsRemoved(isDeleted);
+  };
 
   const showFormHandler = () => {
     setFormIsVisible(true);
@@ -59,7 +64,7 @@ function App() {
   content = <p>Found no Content!</p>;
 
   if (usersList.length) {
-    content =<UsersTable usersList={usersList} />;
+    content = <UsersTable usersList={usersList} onDelete={deleteHandler} />;
   }
 
   if (error) {
@@ -72,15 +77,11 @@ function App() {
 
   return (
     <div className="App">
+      {formIsVisible && <AddUserForm onClose={formCancelHandler} onConfirm={confirmHandler} />}
       <div className="form-wrapper">
-        {formIsVisible && (
-          <AddUserForm onClose={formCancelHandler} onConfirm={confirmHandler} />
-        )}
-        {!formIsVisible && (
-          <button className="button add" onClick={showFormHandler}>
-            Add a User +
-          </button>
-        )}
+        <button className="button add" onClick={showFormHandler}>
+          Add a User +
+        </button>
       </div>
       {content}
     </div>

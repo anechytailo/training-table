@@ -4,6 +4,7 @@ import React from "react";
 const UsersTable = (props) => {
   const deletePost = async (id) => {
     await fetch(`https://63a19d4fba35b96522e2ff4e.mockapi.io/users/${id}`, { method: 'DELETE' });
+    props.onDelete(true);
 }
 
   const removeUserHandler = (id) => {

@@ -1,31 +1,14 @@
 import React, { useState } from "react";
+import ReactDOM from "react-dom";
 import { v4 as uuidv4 } from "uuid";
 
-const AddUserForm = (props) => {
+const Backdrop = (props) => {
+  return <div className="backdrop" onClick={props.onClose} />;
+};
+
+const ModalForm = (props) => {
   const [userName, setUserName] = useState("");
   const [userAge, setUserAge] = useState("");
-  const [error, setError] = useState(null);
-
-  const sendUsersData = async (userData) => {
-    setError(null);
-    console.log(userData);
-    try {
-      const response = await fetch("https://63a19d4fba35b96522e2ff4e.mockapi.io/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      });
-      if (!response.ok) {
-        throw new Error("Something went wrong!");
-      }
-      props.onConfirm(true);
-    } catch (error) {
-      setError(error.message);
-      props.onConfirm(false);
-    }
-  };
 
   const nameChangeHandler = (event) => {
     setUserName(event.target.value);
@@ -38,7 +21,7 @@ const AddUserForm = (props) => {
   const addUserHandler = (event) => {
     event.preventDefault();
     if (userName !== "" && userAge !== "") {
-      sendUsersData({
+      props.onSend({
         id: uuidv4(),
         name: userName,
         age: userAge,
@@ -48,8 +31,8 @@ const AddUserForm = (props) => {
   };
 
   return (
-    <form onSubmit={addUserHandler} className="add-user-form">
-      {error && <p>We couldn't send your data. Please try again!</p>}
+    <form onSubmit={addUserHandler} className="modal add-user-form">
+      {props.isError && <p>We couldn't send your data. Please try again!</p>}
       <h3>Add information about user</h3>
       <div>
         <label htmlFor="name">User Name:</label>
@@ -78,6 +61,44 @@ const AddUserForm = (props) => {
         <button className="button">Submit</button>
       </div>
     </form>
+  );
+};
+
+const AddUserForm = (props) => {
+  const [error, setError] = useState(null);
+
+  const sendUsersData = async (userData) => {
+    setError(null);
+    console.log(userData);
+    try {
+      const response = await fetch("https://63a19d4fba35b96522e2ff4e.mockapi.io/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+      if (!response.ok) {
+        throw new Error("Something went wrong!");
+      }
+      props.onConfirm(true);
+    } catch (error) {
+      setError(error.message);
+      props.onConfirm(false);
+    }
+  };
+
+  return (
+    <>
+      {ReactDOM.createPortal(
+        <Backdrop onClose={props.onClose} />,
+        document.getElementById("backdrop-root")
+      )}
+      {ReactDOM.createPortal(
+        <ModalForm onClose={props.onClose} onSend={sendUsersData} isError={error}/>,
+        document.getElementById("overlay-root")
+      )}
+    </>
   );
 };
 
