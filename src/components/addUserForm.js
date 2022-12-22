@@ -22,7 +22,7 @@ const ModalForm = (props) => {
     event.preventDefault();
     if (userName !== "" && userAge !== "") {
       props.onSend({
-        id: uuidv4(),
+        userId: uuidv4(),
         name: userName,
         age: userAge,
       });
@@ -69,7 +69,6 @@ const AddUserForm = (props) => {
 
   const sendUsersData = async (userData) => {
     setError(null);
-    console.log(userData);
     try {
       const response = await fetch("https://63a19d4fba35b96522e2ff4e.mockapi.io/users", {
         method: "POST",
