@@ -27,7 +27,7 @@ function App() {
       let loadedUsers = [];
       for (const key in data) {
         loadedUsers.push({
-          id: key,
+          id: data[key].id,
           name: data[key].name,
           age: data[key].age,
         });
@@ -43,25 +43,9 @@ function App() {
     fetchUsersHandler();
   }, [isNewUser]);
 
-  const sendUsersData = async (userData: {}) => {
-    setError(null);
-    console.log(userData);
-    try {
-      const response = await fetch("https://63a19d4fba35b96522e2ff4e.mockapi.io/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      });
-      if (!response.ok) {
-        throw new Error("Something went wrong!");
-      }
-      setIsNewUser(true);
-    } catch (error: any) {
-      setError(error.message);
-    }
-  };
+  const confirmHandler = (isSubmitted: boolean) => {
+    setIsNewUser(isSubmitted);
+  }
 
   const showFormHandler = () => {
     setFormIsVisible(true);
@@ -75,7 +59,7 @@ function App() {
   content = <p>Found no Content!</p>;
 
   if (usersList.length) {
-    content = <UsersTable usersList={usersList} />;
+    content =<UsersTable usersList={usersList} />;
   }
 
   if (error) {
@@ -88,16 +72,19 @@ function App() {
 
   return (
     <div className="App">
+      <div className="form-wrapper">
+        {formIsVisible && (
+          <AddUserForm onClose={formCancelHandler} onConfirm={confirmHandler} />
+        )}
+        {!formIsVisible && (
+          <button className="button add" onClick={showFormHandler}>
+            Add a User +
+          </button>
+        )}
+      </div>
       {content}
-      {formIsVisible && <AddUserForm onClose={formCancelHandler} onConfirm={sendUsersData} />}
-      {!formIsVisible && (
-        <button className="button add" onClick={showFormHandler}>
-          Add a User +
-        </button>
-      )}
     </div>
   );
 }
 
 export default App;
-
