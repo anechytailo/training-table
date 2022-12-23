@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Box from "@mui/material/Box";
 import { DataGrid } from "@mui/x-data-grid";
 
@@ -20,7 +20,13 @@ const columns = [
 ];
 
 const UsersTable = (props) => {
-  const rows = props.usersList;
+  const [rows, setRows] = useState(props.usersList);
+  const [deletedRows, setDeletedRows] = useState([]);
+
+  const rowSelectionHandler = (e) => {
+    setDeletedRows(e);
+  };
+
   const deletePost = async (id) => {
     await fetch(`https://63a19d4fba35b96522e2ff4e.mockapi.io/users/${id}`, {
       method: "DELETE",
@@ -28,10 +34,18 @@ const UsersTable = (props) => {
     props.onDelete(true);
   };
 
-  const removeUserHandler = (id) => {
-    deletePost(id);
+  const delHandler = () => {
+    const selectedIDs = new Set(deletedRows);
+    setRows(
+      rows.filter((item) => {
+        const isInArray = selectedIDs.has(`${item.userId}-${item.id}`);
+        if (isInArray) {
+          deletePost(item.id);
+        }
+        return !isInArray;
+      })
+    );
   };
-  console.log(rows);
 
   return (
     <>
@@ -41,44 +55,16 @@ const UsersTable = (props) => {
           columns={columns}
           pageSize={10}
           rowsPerPageOptions={[5, 10, 20]}
-          getRowId={(row) => {console.log(row); return {id: row.userId}}}
-          //getRowId={row => row.id}
+          getRowId={(row) => `${row.userId}-${row.id}`}
+          checkboxSelection
+          onSelectionModelChange={rowSelectionHandler}
         />
       </Box>
-
-      <table>
-        <thead>
-          <tr key="header">
-            <th key="header-id">User Id</th>
-            <th key="header-name">User Name</th>
-            <th key="header-age">User Age</th>
-          </tr>
-        </thead>
-        <tbody>
-          {props.usersList.map((user) => {
-            return (
-              <tr key={user.id}>
-                <td className="user-id" key={`${user.id}-id`}>
-                  {user.id}
-                </td>
-                <td className="user-name" key={`${user.id}-name`}>
-                  {user.name}
-                </td>
-                <td key={`${user.id}-age`}>{user.age}</td>
-                <td>
-                  <button
-                    onClick={() => {
-                      removeUserHandler(user.id);
-                    }}
-                  >
-                    {"\u274C"}
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      <div className="buttons">
+        <button className="button" onClick={delHandler}>
+          Remove Row(s)
+        </button>
+      </div>
     </>
   );
 };
