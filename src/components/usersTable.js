@@ -1,53 +1,70 @@
-import React from "react";
-//import { DataGrid } from '@mui/x-data-grid';
+import React, { useState } from "react";
+import Box from "@mui/material/Box";
+import { DataGrid } from "@mui/x-data-grid";
+
+const columns = [
+  { field: "id", headerName: "ID", width: 90 },
+  {
+    field: "name",
+    headerName: "Name",
+    width: 150,
+    editable: true,
+  },
+  {
+    field: "age",
+    headerName: "Age",
+    type: "number",
+    width: 150,
+    editable: true,
+  },
+];
 
 const UsersTable = (props) => {
-  const deletePost = async (id) => {
-    await fetch(`https://63a19d4fba35b96522e2ff4e.mockapi.io/users/${id}`, { method: 'DELETE' });
-    props.onDelete(true);
-}
+  const [rows, setRows] = useState(props.usersList);
+  const [deletedRows, setDeletedRows] = useState([]);
 
-  const removeUserHandler = (id) => {
-    console.log(id);
-    deletePost(id)
+  const rowSelectionHandler = (e) => {
+    setDeletedRows(e);
   };
 
-  return (<>
-  {/* <DataGrid
-  rows={props.usersList}
-  columns={[{field:"name", headerName: "User Name"}, {field:"age", headerName: "User Age"}]}
-  pageSize={5}
-  rowsPerPageOptions={[5]}
-  checkboxSelection
-/> */}
-  
-    <table>
-      <thead>
-        <tr key="header">
-          <th key="header-id">User Id</th>
-          <th key="header-name">User Name</th>
-          <th key="header-age">User Age</th>
-        </tr>
-      </thead>
-      <tbody>
-        {props.usersList.map((user) => {
-          return (
-            <tr key={user.id}>
-              <td className="user-id" key={`${user.id}-id`}>
-                {user.id}
-              </td>
-              <td className="user-name" key={`${user.id}-name`}>
-                {user.name}
-              </td>
-              <td key={`${user.id}-age`}>{user.age}</td>
-              <td>
-                <button onClick={() => {removeUserHandler(user.id)}}>{"\u274C"}</button>
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
+  const deletePost = async (id) => {
+    await fetch(`https://63a19d4fba35b96522e2ff4e.mockapi.io/users/${id}`, {
+      method: "DELETE",
+    });
+    props.onDelete(true);
+  };
+
+  const delHandler = () => {
+    const selectedIDs = new Set(deletedRows);
+    setRows(
+      rows.filter((item) => {
+        const isInArray = selectedIDs.has(`${item.userId}-${item.id}`);
+        if (isInArray) {
+          deletePost(item.id);
+        }
+        return !isInArray;
+      })
+    );
+  };
+
+  return (
+    <>
+      <Box sx={{ height: 400, width: "auto" }}>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          pageSize={10}
+          rowsPerPageOptions={[5, 10, 20]}
+          getRowId={(row) => `${row.userId}-${row.id}`}
+          checkboxSelection
+          onSelectionModelChange={rowSelectionHandler}
+        />
+      </Box>
+      <div className="buttons">
+        <button className="button" onClick={delHandler}>
+          Remove Row(s)
+        </button>
+      </div>
     </>
   );
 };
