@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Box from "@mui/material/Box";
 import { DataGrid } from "@mui/x-data-grid";
+import EditUserForm from "./editUserForm";
 
 const columns = [
   { field: "id", headerName: "ID", width: 90 },
@@ -22,6 +23,8 @@ const columns = [
 const UsersTable = (props) => {
   const [rows, setRows] = useState(props.usersList);
   const [deletedRows, setDeletedRows] = useState([]);
+  const [formIsVisible, setFormIsVisible] = useState(false);
+  const [editableUser, setEditableUser] = useState({});
 
   const rowSelectionHandler = (e) => {
     setDeletedRows(e);
@@ -47,6 +50,15 @@ const UsersTable = (props) => {
     );
   };
 
+  const rowEditHandler = (e) => {
+    setEditableUser(e.row);
+    setFormIsVisible(true);
+  };
+
+  const formCancelHandler = () => {
+    setFormIsVisible(false);
+  };
+
   return (
     <>
       <Box sx={{ height: 400, width: "auto" }}>
@@ -58,13 +70,21 @@ const UsersTable = (props) => {
           getRowId={(row) => `${row.userId}-${row.id}`}
           checkboxSelection
           onSelectionModelChange={rowSelectionHandler}
+          onRowDoubleClick={rowEditHandler}
         />
       </Box>
       <div className="buttons">
-        <button className="button" onClick={delHandler}>
+        <button className="button" onClick={delHandler} disabled={!deletedRows.length}>
           Remove Row(s)
         </button>
       </div>
+      {formIsVisible && (
+        <EditUserForm
+          onClose={formCancelHandler}
+          user={editableUser}
+          onConfirm={props.onConfirm}
+        />
+      )}
     </>
   );
 };
