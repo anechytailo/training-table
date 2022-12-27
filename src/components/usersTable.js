@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import Box from "@mui/material/Box";
 import { DataGrid } from "@mui/x-data-grid";
 import EditUserForm from "./editUserForm";
@@ -8,7 +9,7 @@ const columns = [
   {
     field: "name",
     headerName: "Name",
-    width: 150,
+    width: 200,
     editable: true,
   },
   {
@@ -21,33 +22,42 @@ const columns = [
 ];
 
 const UsersTable = (props) => {
-  const [rows, setRows] = useState(props.usersList);
+  const [usersList, setUsersList] = useState([{}]);
+  const [isRemoved, setIsRemoved] = useState(false);
+
   const [deletedRows, setDeletedRows] = useState([]);
   const [formIsVisible, setFormIsVisible] = useState(false);
   const [editableUser, setEditableUser] = useState({});
+
+  const fetchUsersHandler = async () => {
+    try {
+      const response = await axios.get("https://63a19d4fba35b96522e2ff4e.mockapi.io/users");
+      const { data } = response;
+      setUsersList(data);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsersHandler();
+  }, [isRemoved, props.isNewUser]);
 
   const rowSelectionHandler = (e) => {
     setDeletedRows(e);
   };
 
   const deletePost = async (id) => {
-    await fetch(`https://63a19d4fba35b96522e2ff4e.mockapi.io/users/${id}`, {
-      method: "DELETE",
-    });
-    props.onDelete(true);
+    await axios.delete(`https://63a19d4fba35b96522e2ff4e.mockapi.io/users/${id}`);
+    setIsRemoved(true);
   };
 
   const delHandler = () => {
     const selectedIDs = new Set(deletedRows);
-    setRows(
-      rows.filter((item) => {
-        const isInArray = selectedIDs.has(`${item.userId}-${item.id}`);
-        if (isInArray) {
-          deletePost(item.id);
-        }
-        return !isInArray;
-      })
-    );
+    usersList.filter((item) => {
+      const isInDelArray = selectedIDs.has(`${item.userId}-${item.id}`);
+      isInDelArray && deletePost(item.id);
+    });
   };
 
   const rowEditHandler = (e) => {
@@ -63,7 +73,7 @@ const UsersTable = (props) => {
     <>
       <Box sx={{ height: 400, width: "auto" }}>
         <DataGrid
-          rows={rows}
+          rows={usersList}
           columns={columns}
           pageSize={10}
           rowsPerPageOptions={[5, 10, 20]}
