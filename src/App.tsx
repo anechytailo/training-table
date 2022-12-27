@@ -65,7 +65,9 @@ function App() {
   content = <p>Found no Content!</p>;
 
   if (usersList.length) {
-    content = <UsersTable usersList={usersList} onDelete={deleteHandler} />;
+    content = (
+      <UsersTable usersList={usersList} onDelete={deleteHandler} onConfirm={confirmHandler} />
+    );
   }
 
   if (error) {
