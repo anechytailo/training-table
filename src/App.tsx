@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 import UsersTable from "./components/usersTable";
 import AddUserForm from "./components/addUserForm";
@@ -18,23 +19,9 @@ function App() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("https://63a19d4fba35b96522e2ff4e.mockapi.io/users");
-      if (!response.ok) {
-        throw new Error("Something went wrong!");
-      }
-
-      const data = await response.json();
-
-      let loadedUsers = [];
-      for (const key in data) {
-        loadedUsers.push({
-          id: data[key].id,
-          userId: data[key].userId,
-          name: data[key].name,
-          age: data[key].age,
-        });
-      }
-      setUsersList(loadedUsers);
+      const response = await axios.get("https://63a19d4fba35b96522e2ff4e.mockapi.io/users");
+      const { data } = response;
+      setUsersList(data);
     } catch (error: any) {
       setError(error.message);
     }
@@ -64,11 +51,11 @@ function App() {
 
   content = <p>Found no Content!</p>;
 
-  if (usersList.length) {
-    content = (
-      <UsersTable usersList={usersList} onDelete={deleteHandler} onConfirm={confirmHandler} />
-    );
-  }
+  // if (usersList.length) {
+  //   content = (
+  //     <UsersTable usersList={usersList} onDelete={deleteHandler} onConfirm={confirmHandler} />
+  //   );
+  // }
 
   if (error) {
     content = <p>{error}</p>;
@@ -80,13 +67,17 @@ function App() {
 
   return (
     <div className="App">
-      {formIsVisible && <AddUserForm onClose={formCancelHandler} onConfirm={confirmHandler} />}
-      <div className="form-wrapper">
-        <button className="button add" onClick={showFormHandler}>
-          Add a User +
-        </button>
-      </div>
-      {content}
+      <>
+        {formIsVisible && (
+          <AddUserForm onClose={formCancelHandler} onConfirm={confirmHandler} />
+        )}
+        <div className="form-wrapper">
+          <button className="button add" onClick={showFormHandler}>
+            Add a User +
+          </button>
+        </div>
+        <UsersTable usersList={usersList} onDelete={deleteHandler} onConfirm={confirmHandler} />
+      </>
     </div>
   );
 }

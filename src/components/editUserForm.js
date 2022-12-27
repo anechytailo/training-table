@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
-import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
 
 const Backdrop = (props) => {
   return <div className="backdrop" onClick={props.onClose} />;
@@ -72,20 +72,12 @@ const EditUserForm = (props) => {
 
   const sendUsersData = async (userData) => {
     setError(null);
+    props.onConfirm(false);
     try {
-      const response = await fetch(
+      await axios.put(
         `https://63a19d4fba35b96522e2ff4e.mockapi.io/users/${props.user.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(userData),
-        }
+        userData
       );
-      if (!response.ok) {
-        throw new Error("Something went wrong!");
-      }
       props.onConfirm(true);
     } catch (error) {
       setError(error.message);

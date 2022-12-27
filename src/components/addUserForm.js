@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import ReactDOM from "react-dom";
+import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 
 const Backdrop = (props) => {
@@ -70,16 +71,7 @@ const AddUserForm = (props) => {
   const sendUsersData = async (userData) => {
     setError(null);
     try {
-      const response = await fetch("https://63a19d4fba35b96522e2ff4e.mockapi.io/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      });
-      if (!response.ok) {
-        throw new Error("Something went wrong!");
-      }
+      await axios.post("https://63a19d4fba35b96522e2ff4e.mockapi.io/users", userData);
       props.onConfirm(true);
     } catch (error) {
       setError(error.message);

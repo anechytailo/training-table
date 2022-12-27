@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import axios from "axios";
 import Box from "@mui/material/Box";
 import { DataGrid } from "@mui/x-data-grid";
 import EditUserForm from "./editUserForm";
@@ -8,7 +9,7 @@ const columns = [
   {
     field: "name",
     headerName: "Name",
-    width: 150,
+    width: 200,
     editable: true,
   },
   {
@@ -21,7 +22,6 @@ const columns = [
 ];
 
 const UsersTable = (props) => {
-  const [rows, setRows] = useState(props.usersList);
   const [deletedRows, setDeletedRows] = useState([]);
   const [formIsVisible, setFormIsVisible] = useState(false);
   const [editableUser, setEditableUser] = useState({});
@@ -31,23 +31,16 @@ const UsersTable = (props) => {
   };
 
   const deletePost = async (id) => {
-    await fetch(`https://63a19d4fba35b96522e2ff4e.mockapi.io/users/${id}`, {
-      method: "DELETE",
-    });
+    await axios.delete(`https://63a19d4fba35b96522e2ff4e.mockapi.io/users/${id}`);
     props.onDelete(true);
   };
 
   const delHandler = () => {
     const selectedIDs = new Set(deletedRows);
-    setRows(
-      rows.filter((item) => {
-        const isInArray = selectedIDs.has(`${item.userId}-${item.id}`);
-        if (isInArray) {
-          deletePost(item.id);
-        }
-        return !isInArray;
-      })
-    );
+    props.usersList.filter((item) => {
+      const isInDelArray = selectedIDs.has(`${item.userId}-${item.id}`);
+      isInDelArray && deletePost(item.id);
+    });
   };
 
   const rowEditHandler = (e) => {
@@ -63,7 +56,7 @@ const UsersTable = (props) => {
     <>
       <Box sx={{ height: 400, width: "auto" }}>
         <DataGrid
-          rows={rows}
+          rows={props.usersList}
           columns={columns}
           pageSize={10}
           rowsPerPageOptions={[5, 10, 20]}
