@@ -97,7 +97,6 @@ th, td {
   margin: auto;
   border: 1px solid #282c34;
   padding: 0 20px;
-  background: #fff;
 }
 
 .add-user-form input {
@@ -133,4 +132,6 @@ th, td {
   width: 50%;
   z-index: 100;
   overflow: hidden;
+  background: #fff;
+  border-radius: 10px;
 }
