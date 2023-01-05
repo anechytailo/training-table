@@ -7,12 +7,7 @@ import AddUserForm from "./components/addUserForm";
 import "./App.css";
 
 function App() {
-  const [isNewUser, setIsNewUser] = useState(false);
   const [formIsVisible, setFormIsVisible] = useState(false);
-
-  const confirmHandler = (isSubmitted: boolean) => {
-    setIsNewUser(isSubmitted);
-  };
 
   const showFormHandler = () => {
     setFormIsVisible(true);
@@ -25,14 +20,14 @@ function App() {
     <div className="App">
       <>
         {formIsVisible && (
-          <AddUserForm onClose={formCancelHandler} onConfirm={confirmHandler} />
+          <AddUserForm onClose={formCancelHandler} />
         )}
         <div className="form-wrapper">
           <button className="button add" onClick={showFormHandler}>
             Add a User +
           </button>
         </div>
-        <UsersTable onConfirm={confirmHandler} isNewUser={isNewUser}/>
+        <UsersTable />
       </>
     </div>
   );

@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const initialDataGridState = {
-  updated: false,
+  renderTable: true,
   columns: [
     { field: "id", headerName: "ID", width: 90 },
     {
@@ -28,8 +28,13 @@ const dataGridSlice = createSlice({
   reducers: {
     configureUsersList(state, action) {
       state.rows = action.payload;
-      state.updated = true;
+      if (state.renderTable) {
+        state.renderTable = false;
+      }
     },
+    reRender(state) {
+      state.renderTable = true;
+    }
   },
 });
 

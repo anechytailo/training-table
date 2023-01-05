@@ -5,10 +5,9 @@ import Box from "@mui/material/Box";
 import { DataGrid } from "@mui/x-data-grid";
 
 import EditUserForm from "./editUserForm";
-import { fetchUserData } from "../store/usersList-slice";
+import { fetchUserData, dataGridActions } from "../store/usersList-slice";
 
-const UsersTable = (props) => {
-  const [isRemoved, setIsRemoved] = useState(false);
+const UsersTable = () => {
   const [deletedRows, setDeletedRows] = useState([]);
 
   const [formIsVisible, setFormIsVisible] = useState(false);
@@ -17,12 +16,11 @@ const UsersTable = (props) => {
   const dispatch = useDispatch();
   const dataGrigColumns = useSelector((state) => state.usertData.columns);
   const dataGrigRows = useSelector((state) => state.usertData.rows);
-  const isDataGrigUpdated = useSelector((state) => state.usertData.updated);
-  console.log(props.isNewUser);
+  const isDataGrigRendered = useSelector((state) => state.usertData.renderTable);
 
   useEffect(()=>{
     dispatch(fetchUserData());
-  },[dispatch, isRemoved, props.isNewUser]);
+  },[dispatch, isDataGrigRendered]);
 
   const rowSelectionHandler = (e) => {
     setDeletedRows(e);
@@ -30,15 +28,17 @@ const UsersTable = (props) => {
 
   const deletePost = async (id) => {
     await axios.delete(`https://63a19d4fba35b96522e2ff4e.mockapi.io/users/${id}`);
-    setIsRemoved(true);
   };
 
   const delHandler = () => {
     const selectedIDs = new Set(deletedRows);
     dataGrigRows.filter((item) => {
       const isInDelArray = selectedIDs.has(`${item.userId}-${item.id}`);
-      isInDelArray && deletePost(item.id);
+      if (isInDelArray) {
+        deletePost(item.id);
+      }
     });
+    dispatch(dataGridActions.reRender());
   };
 
   const rowEditHandler = (e) => {
@@ -73,7 +73,6 @@ const UsersTable = (props) => {
         <EditUserForm
           onClose={formCancelHandler}
           user={editableUser}
-          onConfirm={props.onConfirm}
         />
       )}
     </>

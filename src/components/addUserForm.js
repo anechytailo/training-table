@@ -1,13 +1,16 @@
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 
 import Modal from "../UI/Modal";
+import { dataGridActions } from "../store/usersList-slice";
 
 const AddUserForm = (props) => {
   const [userName, setUserName] = useState("");
   const [userAge, setUserAge] = useState("");
   const [error, setError] = useState(null);
+  const dispatch = useDispatch();
 
   const nameChangeHandler = (event) => {
     setUserName(event.target.value);
@@ -21,10 +24,9 @@ const AddUserForm = (props) => {
     setError(null);
     try {
       await axios.post("https://63a19d4fba35b96522e2ff4e.mockapi.io/users", userData);
-      props.onConfirm(true);
+      dispatch(dataGridActions.reRender());
     } catch (error) {
       setError(error.message);
-      props.onConfirm(false);
     }
   };
 
