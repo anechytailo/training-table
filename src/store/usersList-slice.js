@@ -27,14 +27,14 @@ const dataGridSlice = createSlice({
   initialState: initialDataGridState,
   reducers: {
     configureUsersList(state, action) {
-      state.rows = action.payload;
       if (state.renderTable) {
+        state.rows = action.payload;
         state.renderTable = false;
       }
     },
     reRender(state) {
       state.renderTable = true;
-    }
+    },
   },
 });
 
