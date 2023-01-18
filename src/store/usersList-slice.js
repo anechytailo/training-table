@@ -1,20 +1,20 @@
-import { createSlice } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createSlice } from '@reduxjs/toolkit';
+import axios from 'axios';
 
 const initialDataGridState = {
   renderTable: true,
   columns: [
-    { field: "id", headerName: "ID", width: 90 },
+    { field: 'id', headerName: 'ID', width: 90 },
     {
-      field: "name",
-      headerName: "Name",
+      field: 'name',
+      headerName: 'Name',
       width: 200,
       editable: true,
     },
     {
-      field: "age",
-      headerName: "Age",
-      type: "number",
+      field: 'age',
+      headerName: 'Age',
+      type: 'number',
       width: 150,
       editable: true,
     },
@@ -23,14 +23,12 @@ const initialDataGridState = {
 };
 
 const dataGridSlice = createSlice({
-  name: "usersDataGrid",
+  name: 'usersDataGrid',
   initialState: initialDataGridState,
   reducers: {
     configureUsersList(state, action) {
-      if (state.renderTable) {
-        state.rows = action.payload;
-        state.renderTable = false;
-      }
+      state.rows = action.payload;
+      state.renderTable = false;
     },
     reRender(state) {
       state.renderTable = true;
@@ -41,7 +39,7 @@ const dataGridSlice = createSlice({
 export const fetchUserData = () => {
   return async (dispatch) => {
     const fetchData = async () => {
-      const response = await axios.get("https://63a19d4fba35b96522e2ff4e.mockapi.io/users");
+      const response = await axios.get('https://63a19d4fba35b96522e2ff4e.mockapi.io/users');
       const { data } = response;
       return data;
     };

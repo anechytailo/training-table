@@ -36,9 +36,9 @@ const UsersTable = () => {
       const isInDelArray = selectedIDs.has(`${item.userId}-${item.id}`);
       if (isInDelArray) {
         deletePost(item.id);
+        dispatch(dataGridActions.reRender());
       }
     });
-    dispatch(dataGridActions.reRender());
   };
 
   const rowEditHandler = (e) => {
