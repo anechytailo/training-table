@@ -1,47 +1,43 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import Box from "@mui/material/Box";
-import { DataGrid } from "@mui/x-data-grid";
-import EditUserForm from "./editUserForm";
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+import Box from '@mui/material/Box';
+import { DataGrid } from '@mui/x-data-grid';
 
-const columns = [
-  { field: "id", headerName: "ID", width: 90 },
-  {
-    field: "name",
-    headerName: "Name",
-    width: 200,
-    editable: true,
-  },
-  {
-    field: "age",
-    headerName: "Age",
-    type: "number",
-    width: 150,
-    editable: true,
-  },
-];
+import EditUserForm from './editUserForm';
+import { dataGridActions } from '../store/usersList-slice';
 
-const UsersTable = (props) => {
-  const [usersList, setUsersList] = useState([{}]);
-  const [isRemoved, setIsRemoved] = useState(false);
+const fetchUserData = () => {
+  return async (dispatch) => {
+    const fetchData = async () => {
+      const response = await axios.get('https://63a19d4fba35b96522e2ff4e.mockapi.io/users');
+      const { data } = response;
+      return data;
+    };
 
+    try {
+      const usersData = await fetchData();
+      dispatch(dataGridActions.configureUsersList(usersData));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+};
+
+const UsersTable = () => {
   const [deletedRows, setDeletedRows] = useState([]);
+
   const [formIsVisible, setFormIsVisible] = useState(false);
   const [editableUser, setEditableUser] = useState({});
 
-  const fetchUsersHandler = async () => {
-    try {
-      const response = await axios.get("https://63a19d4fba35b96522e2ff4e.mockapi.io/users");
-      const { data } = response;
-      setUsersList(data);
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
+  const dispatch = useDispatch();
+  const dataGrigColumns = useSelector((state) => state.usertData.columns);
+  const dataGrigRows = useSelector((state) => state.usertData.rows);
+  const isDataGrigRendered = useSelector((state) => state.usertData.renderTable);
 
   useEffect(() => {
-    fetchUsersHandler();
-  }, [isRemoved, props.isNewUser]);
+    dispatch(fetchUserData());
+  }, [dispatch, isDataGrigRendered]);
 
   const rowSelectionHandler = (e) => {
     setDeletedRows(e);
@@ -49,14 +45,16 @@ const UsersTable = (props) => {
 
   const deletePost = async (id) => {
     await axios.delete(`https://63a19d4fba35b96522e2ff4e.mockapi.io/users/${id}`);
-    setIsRemoved(true);
   };
 
   const delHandler = () => {
     const selectedIDs = new Set(deletedRows);
-    usersList.filter((item) => {
+    dataGrigRows.filter((item) => {
       const isInDelArray = selectedIDs.has(`${item.userId}-${item.id}`);
-      isInDelArray && deletePost(item.id);
+      if (isInDelArray) {
+        deletePost(item.id);
+        dispatch(dataGridActions.reRender());
+      }
     });
   };
 
@@ -71,10 +69,10 @@ const UsersTable = (props) => {
 
   return (
     <>
-      <Box sx={{ height: 400, width: "auto" }}>
+      <Box sx={{ height: 400, width: 'auto' }}>
         <DataGrid
-          rows={usersList}
-          columns={columns}
+          rows={dataGrigRows}
+          columns={dataGrigColumns}
           pageSize={10}
           rowsPerPageOptions={[5, 10, 20]}
           getRowId={(row) => `${row.userId}-${row.id}`}
@@ -83,18 +81,12 @@ const UsersTable = (props) => {
           onRowDoubleClick={rowEditHandler}
         />
       </Box>
-      <div className="buttons">
-        <button className="button" onClick={delHandler} disabled={!deletedRows.length}>
+      <div className='buttons'>
+        <button className='button' onClick={delHandler} disabled={!deletedRows.length}>
           Remove Row(s)
         </button>
       </div>
-      {formIsVisible && (
-        <EditUserForm
-          onClose={formCancelHandler}
-          user={editableUser}
-          onConfirm={props.onConfirm}
-        />
-      )}
+      {formIsVisible && <EditUserForm onClose={formCancelHandler} user={editableUser} />}
     </>
   );
 };
