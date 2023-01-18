@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
 
 const initialDataGridState = {
   renderTable: true,
@@ -35,23 +34,6 @@ const dataGridSlice = createSlice({
     },
   },
 });
-
-export const fetchUserData = () => {
-  return async (dispatch) => {
-    const fetchData = async () => {
-      const response = await axios.get('https://63a19d4fba35b96522e2ff4e.mockapi.io/users');
-      const { data } = response;
-      return data;
-    };
-
-    try {
-      const usersData = await fetchData();
-      dispatch(dataGridActions.configureUsersList(usersData));
-    } catch (error) {
-      console.log(error);
-    }
-  };
-};
 
 export const dataGridActions = dataGridSlice.actions;
 
