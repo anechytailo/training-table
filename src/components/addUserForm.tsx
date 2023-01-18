@@ -1,15 +1,16 @@
 import React, { ChangeEvent, FormEvent, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
-import { Person, EditUserProps } from '../api/table';
+import { Person, AddUserProps } from '../api/table';
 
 import Modal from '../UI/Modal';
 import { dataGridActions } from '../store/usersList-slice';
 
-const EditUserForm = (props: EditUserProps) => {
-  const [userName, setUserName] = useState(props.user.name);
-  const [userAge, setUserAge] = useState(props.user.age);
+const AddUserForm = (props: AddUserProps) => {
+  const [userName, setUserName] = useState('');
+  const [userAge, setUserAge] = useState('');
   const [error, setError] = useState('');
   const dispatch = useDispatch();
 
@@ -18,16 +19,13 @@ const EditUserForm = (props: EditUserProps) => {
   };
 
   const ageChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
-    setUserAge(+event.target.value);
+    setUserAge(event.target.value);
   };
 
   const sendUsersData = async (userData: Person) => {
     setError('');
     try {
-      await axios.put(
-        `https://63a19d4fba35b96522e2ff4e.mockapi.io/users/${props.user.id}`,
-        userData
-      );
+      await axios.post('https://63a19d4fba35b96522e2ff4e.mockapi.io/users', userData);
       dispatch(dataGridActions.reRender());
     } catch (error) {
       if (error instanceof Error) {
@@ -36,26 +34,23 @@ const EditUserForm = (props: EditUserProps) => {
     }
   };
 
-  const updateUserHandler = (event: FormEvent) => {
+  const addUserHandler = (event: FormEvent) => {
     event.preventDefault();
-    if (userName !== '' && userAge >= 0) {
+    if (userName !== '' && +userAge >= 0) {
       sendUsersData({
+        userId: uuidv4(),
         name: userName,
-        age: userAge,
+        age: +userAge,
       });
       props.onClose();
     }
   };
 
   return (
-    <Modal>
-      <form onSubmit={updateUserHandler} className='modal add-user-form'>
+    <Modal onClose={props.onClose}>
+      <form onSubmit={addUserHandler} className='modal add-user-form'>
         {error && <p>We couldn't send your data. Please try again!</p>}
-        <h3>Update information about {props.user.name}</h3>
-        <div>
-          <label htmlFor='id'>User Id:</label>
-          <input type='text' id='id' value={props.user.id} readOnly />
-        </div>
+        <h3>Add information about user</h3>
         <div>
           <label htmlFor='name'>User Name:</label>
           <input
@@ -87,4 +82,4 @@ const EditUserForm = (props: EditUserProps) => {
   );
 };
 
-export default EditUserForm;
+export default AddUserForm;

@@ -5,7 +5,11 @@ export interface Person {
   age: number;
 }
 
-export interface EditProps {
+export interface EditUserProps {
   user: Person;
+  onClose: () => void;
+}
+
+export interface AddUserProps {
   onClose: () => void;
 }
