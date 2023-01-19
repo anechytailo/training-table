@@ -2,19 +2,37 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import Box from '@mui/material/Box';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid, GridSelectionModel } from '@mui/x-data-grid';
+
+import { IPerson, UserTable } from '../types/table';
 
 import EditUserForm from './editUserForm';
 import { dataGridActions } from '../store/usersList-slice';
 
-const fetchUserData = () => {
-  return async (dispatch) => {
-    const fetchData = async () => {
-      const response = await axios.get('https://63a19d4fba35b96522e2ff4e.mockapi.io/users');
-      const { data } = response;
-      return data;
-    };
+const UsersTable = () => {
+  const [deletedRows, setDeletedRows] = useState<GridSelectionModel>([]);
 
+  const [formIsVisible, setFormIsVisible] = useState<boolean>(false);
+  const initialEditableUser = {
+    id: '',
+    userId: '',
+    name: '',
+    age: 0,
+  };
+  const [editableUser, setEditableUser] = useState<IPerson>(initialEditableUser);
+
+  const dispatch = useDispatch();
+  const dataGrigColumns = useSelector((state: UserTable) => state.usertData.columns);
+  const dataGrigRows = useSelector((state: UserTable) => state.usertData.rows);
+  const isDataGrigRendered = useSelector((state: UserTable) => state.usertData.renderTable);
+
+  const fetchData = async () => {
+    const response = await axios.get('https://63a19d4fba35b96522e2ff4e.mockapi.io/users');
+    const { data } = response;
+    return data;
+  };
+
+  const fetchUserData = async () => {
     try {
       const usersData = await fetchData();
       dispatch(dataGridActions.configureUsersList(usersData));
@@ -22,44 +40,32 @@ const fetchUserData = () => {
       console.log(error);
     }
   };
-};
-
-const UsersTable = () => {
-  const [deletedRows, setDeletedRows] = useState([]);
-
-  const [formIsVisible, setFormIsVisible] = useState(false);
-  const [editableUser, setEditableUser] = useState({});
-
-  const dispatch = useDispatch();
-  const dataGrigColumns = useSelector((state) => state.usertData.columns);
-  const dataGrigRows = useSelector((state) => state.usertData.rows);
-  const isDataGrigRendered = useSelector((state) => state.usertData.renderTable);
 
   useEffect(() => {
-    dispatch(fetchUserData());
-  }, [dispatch, isDataGrigRendered]);
+    fetchUserData();
+  }, [isDataGrigRendered]);
 
-  const rowSelectionHandler = (e) => {
-    setDeletedRows(e);
+  const rowSelectionHandler = (event: GridSelectionModel) => {
+    setDeletedRows(event);
   };
 
-  const deletePost = async (id) => {
+  const deletePost = async (id: string) => {
     await axios.delete(`https://63a19d4fba35b96522e2ff4e.mockapi.io/users/${id}`);
   };
 
   const delHandler = () => {
     const selectedIDs = new Set(deletedRows);
-    dataGrigRows.filter((item) => {
-      const isInDelArray = selectedIDs.has(`${item.userId}-${item.id}`);
+    dataGrigRows.filter((item: IPerson) => {
+      const isInDelArray: boolean = selectedIDs.has(`${item.userId}-${item.id}`);
       if (isInDelArray) {
-        deletePost(item.id);
+        deletePost(item.id as string);
         dispatch(dataGridActions.reRender());
       }
     });
   };
 
-  const rowEditHandler = (e) => {
-    setEditableUser(e.row);
+  const rowEditHandler = (event: any) => {
+    setEditableUser(event.row);
     setFormIsVisible(true);
   };
 
