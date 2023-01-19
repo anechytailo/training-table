@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import Box from '@mui/material/Box';
-import { DataGrid, GridSelectionModel, GridEventListener } from '@mui/x-data-grid';
+import { DataGrid, GridSelectionModel } from '@mui/x-data-grid';
 
 import { IPerson, UserTable } from '../types/table';
 
@@ -42,7 +42,6 @@ const UsersTable = () => {
   };
 
   useEffect(() => {
-    // dispatch(fetchUserData());
     fetchUserData();
   }, [isDataGrigRendered]);
 
