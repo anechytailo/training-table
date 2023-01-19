@@ -2,15 +2,15 @@ import React, { ChangeEvent, FormEvent, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import axios from 'axios';
 
-import { Person, EditUserProps } from '../api/table';
+import { IPerson, EditUserProps } from '../types/table';
 
 import Modal from '../UI/Modal';
 import { dataGridActions } from '../store/usersList-slice';
 
 const EditUserForm = (props: EditUserProps) => {
-  const [userName, setUserName] = useState(props.user.name);
+  const [userName, setUserName] = useState<string>(props.user.name);
   const [userAge, setUserAge] = useState(props.user.age);
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string>('');
   const dispatch = useDispatch();
 
   const nameChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
@@ -21,7 +21,7 @@ const EditUserForm = (props: EditUserProps) => {
     setUserAge(+event.target.value);
   };
 
-  const sendUsersData = async (userData: Person) => {
+  const sendUsersData = async (userData: IPerson) => {
     setError('');
     try {
       await axios.put(
@@ -30,9 +30,7 @@ const EditUserForm = (props: EditUserProps) => {
       );
       dispatch(dataGridActions.reRender());
     } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      }
+      setError((error as Error).message);
     }
   };
 
@@ -40,6 +38,7 @@ const EditUserForm = (props: EditUserProps) => {
     event.preventDefault();
     if (userName !== '' && userAge >= 0) {
       sendUsersData({
+        userId: props.user.userId,
         name: userName,
         age: userAge,
       });

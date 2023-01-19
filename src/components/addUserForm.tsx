@@ -3,15 +3,15 @@ import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Person, AddUserProps } from '../api/table';
+import { IPerson, AddUserProps } from '../types/table';
 
 import Modal from '../UI/Modal';
 import { dataGridActions } from '../store/usersList-slice';
 
 const AddUserForm = (props: AddUserProps) => {
-  const [userName, setUserName] = useState('');
-  const [userAge, setUserAge] = useState('');
-  const [error, setError] = useState('');
+  const [userName, setUserName] = useState<string>('');
+  const [userAge, setUserAge] = useState<string>('');
+  const [error, setError] = useState<string>('');
   const dispatch = useDispatch();
 
   const nameChangeHandler = (event: ChangeEvent<HTMLInputElement>) => {
@@ -22,15 +22,13 @@ const AddUserForm = (props: AddUserProps) => {
     setUserAge(event.target.value);
   };
 
-  const sendUsersData = async (userData: Person) => {
+  const sendUsersData = async (userData: IPerson) => {
     setError('');
     try {
       await axios.post('https://63a19d4fba35b96522e2ff4e.mockapi.io/users', userData);
       dispatch(dataGridActions.reRender());
     } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
-      }
+      setError((error as Error).message);
     }
   };
 
